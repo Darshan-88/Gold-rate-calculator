@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Estimate the cost of gold jewellery in Indian rupees with an itemised bill.">
+<title>Gold Jewellery Calculator</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f6f6f1;color:#142c24;font:16px/1.5 system-ui,sans-serif}header{border-bottom:1px solid #dce1d9;background:#fafbf7}.wrap{max-width:1100px;margin:auto;padding:0 24px}.brand{height:68px;display:flex;align-items:center;gap:12px;font-weight:700}.seal{display:grid;place-items:center;width:34px;height:34px;border-radius:50%;background:#17392e;color:#f5d993;font-family:Georgia,serif}.currency{margin-left:auto;font-size:.875rem;color:#43564d}h1,h2,.total{font-family:Georgia,serif;font-weight:400}h1{font-size:clamp(2.5rem,6vw,4.4rem);line-height:1.04;letter-spacing:-.05em;margin:0;max-width:800px}.hero{padding:58px 0 32px}.hero p{color:#455950;margin:14px 0 0}.grid{display:grid;grid-template-columns:1.3fr 1fr;gap:22px;align-items:start;padding-bottom:48px}.card{padding:26px;border-radius:20px;background:#fff;border:1px solid #e0e5dc}.head{display:flex;align-items:center;justify-content:space-between;gap:12px}h2{font-size:1.8rem;margin:0 0 16px}.head h2{margin:0}.head{margin-bottom:18px}button{font:inherit;cursor:pointer;border:1px solid #dce4dc;border-radius:8px;padding:6px 12px;background:#f6f8f4;color:#17392e}label,legend{font-size:.9rem;font-weight:650}fieldset{margin:0;padding:0;border:0;min-width:0}.pick{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:7px}.pick label{position:relative;text-align:center;cursor:pointer}.pick input{position:absolute;opacity:0;width:1px;height:1px}.pick span{display:block;padding:9px 4px;border:1px solid #dbe3db;border-radius:8px}.pick input:checked+span{background:#17392e;color:white;border-color:#17392e}.pick input:focus-visible+span{outline:2px solid #af771a;outline-offset:2px}.fields{display:grid;grid-template-columns:1fr 1fr;gap:15px;margin:15px 0}.field{display:grid;gap:5px;align-content:start;min-width:0}input[type=number],select{width:100%;min-width:0;background:#fafbf8;border:1px solid #dce4dc;border-radius:8px;padding:9px;color:#142c24;font:inherit}select{appearance:none;padding-right:30px;background:#fafbf8 linear-gradient(45deg,transparent 48%,#43564d 50%,#43564d 62%,transparent 64%) right 16px center/6px 6px no-repeat}small{color:#526257;font-size:.8rem}.bill{background:#13382d;color:#f7f8ef;border-color:#13382d}.total{font-size:clamp(1.7rem,4vw,3.4rem);color:#f7d693;line-height:1.1;overflow-wrap:anywhere;margin:3px 0}.muted,.bill small{color:#c9dacf}.bill dl{margin:20px 0 14px;border-top:1px solid #476459}.row{display:flex;justify-content:space-between;gap:12px;align-items:baseline;padding:9px 0;border-bottom:1px solid #476459}.row dd{margin:0;text-align:right;font-variant-numeric:tabular-nums;overflow-wrap:anywhere;min-width:0}.row dt{font-size:.9rem}.note{margin:12px 0 0}.error{color:#a02b22}.error:empty{display:none}[aria-invalid=true]{outline:2px solid #a02b22}@media(max-width:760px){.grid{grid-template-columns:1fr}.hero{padding-top:36px}}@media(max-width:400px){.wrap{padding:0 14px}.card{padding:18px}.fields{gap:10px}}
+</style>
+<header><div class="wrap brand"><span class="seal" aria-hidden="true">Au</span> Gold Calculator <span class="currency">INR · ₹</span></div></header>
+<main class="wrap">
+<section class="hero"><h1>Gold Jewellery Calculator</h1><p>Enter your jeweller’s rate and charges to see the full price in rupees.</p></section>
+<div class="grid">
+<form class="card" id="calculator">
+<div class="head"><h2>Jewellery details</h2><button type="reset">Reset</button></div>
+<fieldset><legend>Gold purity</legend><div class="pick">
+<label><input type="radio" name="purity" value="18"><span>18K</span></label>
+<label><input type="radio" name="purity" value="20"><span>20K</span></label>
+<label><input type="radio" name="purity" value="22" checked><span>22K</span></label>
+<label><input type="radio" name="purity" value="24"><span>24K</span></label>
+</div></fieldset>
+<div class="fields">
+<label class="field">Gold rate (₹/g)<input id="rate" type="number" min="0" step="any" value="10000" required></label>
+<label class="field">Rate quoted for<select id="basis"><option value="24">24K gold</option><option value="selected">Selected purity</option></select></label>
+<label class="field">Net gold weight (g)<input id="weight" type="number" min="0" step="any" value="10" required></label>
+<label class="field">Wastage (%)<input id="wastage" type="number" min="0" step="any" value="0" required></label>
+<label class="field">Making-charge type<select id="mode"><option value="percent">Percentage (%)</option><option value="gram">Rupees per gram</option></select></label>
+<label class="field"><span id="makingLabel">Making charge (%)</span><input id="making" type="number" min="0" step="any" value="10" required></label>
+<label class="field">GST (%)<input id="gst" type="number" min="0" step="any" value="3" required></label>
+</div>
+<small>Starts with example values. Use the net gold weight excluding stones.</small>
+<p class="error" id="error" role="status"></p>
+</form>
+<section class="card bill" aria-labelledby="bill-heading">
+<h2 id="bill-heading">Bill breakdown</h2>
+<div class="muted">Estimated total</div>
+<div class="total" id="total" aria-live="polite" aria-atomic="true"></div>
+<small id="summary"></small>
+<dl>
+<div class="row"><dt>Rate at selected purity</dt><dd id="unit"></dd></div>
+<div class="row"><dt>Gold value</dt><dd id="gold"></dd></div>
+<div class="row"><dt>Wastage charge</dt><dd id="waste"></dd></div>
+<div class="row"><dt>Making charge</dt><dd id="labour"></dd></div>
+<div class="row"><dt>Subtotal before GST</dt><dd id="subtotal"></dd></div>
+<div class="row"><dt id="taxLabel">GST</dt><dd id="tax"></dd></div>
+</dl>
+<p class="note"><small>Wastage and percentage making charges are based on gold value. Per-gram making charges use net weight. GST applies to the subtotal.</small></p>
+</section>
+</div>
+</main>
+<script>
+const byId = id => document.getElementById(id);
+const form = byId('calculator');
+const numeric = ['rate','weight','wastage','making','gst'].map(byId);
+const money = new Intl.NumberFormat('en-IN',{style:'currency',currency:'INR'});
+const quantity = new Intl.NumberFormat('en-IN',{maximumFractionDigits:8});
+const round = amount => Math.round((amount + Number.EPSILON) * 100) / 100;
+
+function update() {
+  const purity = Number(form.elements.purity.value);
+  const perGram = byId('mode').value === 'gram';
+  byId('makingLabel').textContent = perGram ? 'Making charge (₹/g)' : 'Making charge (%)';
+  const [rate, weight, wastage, making, gst] = numeric.map(input => input.valueAsNumber);
+  const unit = byId('basis').value === '24' ? rate * purity / 24 : rate;
+  const gold = round(unit * weight);
+  const waste = round(gold * wastage / 100);
+  const labour = round(perGram ? making * weight : gold * making / 100);
+  const subtotal = round(gold + waste + labour);
+  const tax = round(subtotal * gst / 100);
+  const total = round(subtotal + tax);
+  const amounts = {unit,gold,waste,labour,subtotal,tax,total};
+  const inputsValid = numeric.every(input => input.validity.valid && Number.isFinite(input.valueAsNumber));
+  const valid = inputsValid && Number.isSafeInteger(Math.round(total * 100)) && Number.isFinite(unit);
+  for (const input of numeric) input.setAttribute('aria-invalid', String(!input.validity.valid && input.value !== ''));
+  for (const [id, amount] of Object.entries(amounts)) {
+    byId(id).textContent = valid ? money.format(amount) + (id === 'unit' ? ' / g' : '') : '—';
+  }
+  byId('summary').textContent = valid ? purity + 'K gold · ' + quantity.format(weight) + ' g' : 'Enter valid amounts to see an estimate.';
+  byId('taxLabel').textContent = valid ? 'GST (' + quantity.format(gst) + '%)' : 'GST';
+  byId('error').textContent = valid ? '' : inputsValid ? 'The total is too large to calculate.' : 'Enter a number of zero or more in each field.';
+}
+form.addEventListener('input', update);
+form.addEventListener('reset', () => queueMicrotask(update));
+form.addEventListener('submit', event => event.preventDefault());
+const makingAmounts = {percent:'10',gram:'0'};
+let previousMode = byId('mode').value;
+byId('mode').addEventListener('input', event => {
+  makingAmounts[previousMode] = byId('making').value;
+  previousMode = event.target.value;
+  byId('making').value = makingAmounts[previousMode];
+});
+form.addEventListener('reset', () => {
+  previousMode = 'percent';
+  makingAmounts.percent = '10';
+  makingAmounts.gram = '0';
+});
+update();
+</script>
+</html>
